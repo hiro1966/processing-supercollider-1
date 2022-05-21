@@ -1,0 +1,101 @@
+import supercollider.*;
+import oscP5.*;
+
+//Synth synth;
+int NUM = 100;
+float[] radius = new float[NUM];
+PVector[] pos = new PVector[NUM];
+int counter = 0;
+Synth[]  synth = new Synth[NUM];
+int cwait =0;
+Obj1[] objects = {};
+
+
+class Obj1{
+  float x,y,x1,y1;
+  float radius;
+  color linecolor,fillcolor;
+  float alpha;
+  Synth synth;
+  int count1 = 0;
+
+  Obj1(){
+    x=random(width);
+    y=random(height);
+    x1=random(2)-1;
+    y1=random(2)-1;
+    radius=random(100)+10;
+    linecolor=color(random(255),random(255),random(255));
+    fillcolor=color(random(255),random(255),random(255));
+    alpha = random(255);
+    synth = new Synth("test_inst");
+    synth.set("freq", map(y, height, 0, 20, 8000));
+    synth.create();
+  }
+
+  void drowMe(){
+    noStroke();
+    fill(fillcolor,alpha);
+    ellipse(x,y,radius*2,radius*2);
+    stroke(linecolor,150);
+    noFill();
+    ellipse(x,y,radius*2,radius*2);
+  }
+  void playMe(){
+    synth.create();
+  }
+  void update(){
+    boolean  flg = false;
+    x=x+x1;
+    y=y+y1;
+    if(int(x)==int(0)){
+      x1=1;
+      flg = true;
+    }
+    if(int(x)==int(width)){
+      x1=-1;
+      flg = true;
+    }
+    if(int(y)==int(0)){
+      y1=1;
+      flg = true;
+    }
+    if(int(y)==int(height)){
+      y1=-1;
+      flg = true;
+    }
+    if(flg){
+      playMe();
+      count1 += 1;
+    }
+  }
+
+}
+
+
+void setup () {
+  size(800, 600);
+  frameRate(60);
+  noFill();
+  stroke(31, 127, 255);
+  strokeWeight(3);
+}
+
+void draw() {
+  cwait += 1;
+  if(cwait > 100){
+    Obj1 obj = new Obj1();
+    objects = (Obj1[])append(objects, obj);
+    cwait=0;
+  }
+  background(0);
+  for (int i = 0; i < objects.length; i++) {
+    Obj1 obj = objects[i];
+    obj.update();
+    obj.drowMe();
+    if(obj.count1 > 3){
+      objects[i]=objects[objects.length-1];
+      objects = (Obj1[])shorten(objects);
+    }
+  }
+}
